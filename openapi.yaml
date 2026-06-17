@@ -1,0 +1,358 @@
+openapi: 3.0.3
+info:
+  title: Workflow API
+  version: 1.0.0
+  description: API för att hantera workflows.
+
+paths:
+  /yrkande:
+    post:
+      tags: [ YrkandeController ]
+      operationId: postYrkande
+      summary: Skapa ett nytt yrkande
+      description: Skapa ett nytt yrkande
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostYrkandeRequest'
+      responses:
+        '201':
+          description: Skapat yrkande OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostYrkandeResponse'
+        '400':
+           description: Ogiltigt anrop
+        '500':
+           description: Internt serverfel
+
+components:
+  schemas:
+
+    PostYrkandeRequest:
+      type: object
+      description: Data som krävs för att skapa ett nytt yrkande
+      properties:
+        erbjudandeId:
+          type: string
+          description: Unikt ID som indentifierar vilket erbjudande yrkandet avser
+        yrkandeFrom:
+          type: string
+          format: date-time
+          description: Yrkande från och med datum
+        yrkandeTom:
+          type: string
+          format: date-time
+          description: Yrkande till och med datum
+        individYrkandeRoller:
+          type: array
+          description: Lista av personer involverade i yrkandet samt deras roll
+          items:
+            $ref: '#/components/schemas/IndividYrkandeRoll'
+        produceradeResultat:
+          type: array
+          description: Lista av producerade resultat
+          items:
+            $ref: '#/components/schemas/ProduceratResultat'
+        handlaggningspecifikationId:
+          type: string
+          format: uuid
+        avsiktsId:
+          type: string
+          description: Unikt ID som identifierar avsikten med yrkandet
+        replyTo:
+          type: string
+          description: Kafka topic som notifiering om avslutad handläggning skickas till
+          minLength: 1
+      required:
+        - erbjudandeId
+        - yrkandeFrom
+        - yrkandeTom
+        - individYrkandeRoller
+        - produceradeResultat
+        - handlaggningspecifikationId
+        - avsiktsId
+        - replyTo
+      example:
+        erbjudandeId: "a3b9c7b8-1234-4567-89ab-123456789abc"
+        yrkandeFrom: "2025-01-01T00:00:00Z"
+        yrkandeTom: "2025-01-02T00:00:00Z"
+        individYrkandeRoller:
+          - individ:
+              typId: "58435904-c2b6-4b1f-a0ab-62f1839d8ff2"
+              varde: "19901010-1234"
+            yrkandeRollId: "58435904-c2b6-4b1f-a0ab-62f1839d8ff2"
+        produceradeResultat:
+          - id: "80c9811d-e2bb-4165-9c87-58f67555da2b"
+            version: 1
+            from: "2025-01-01T00:00:00Z"
+            tom: "2025-01-02T00:00:00Z"
+            yrkandestatus: "57600d42-1450-431b-9ee3-063681cb27f6"
+            typ: "ERSATTNING"
+            data: "{}"
+        handlaggningspecifikationId: "4cc0aec3-752b-4590-8fc5-7986d01a426f"
+        avsiktsId: "8b817501-4f57-4929-bcb9-f9be361f0424"
+        replyTo: "handlaggning-done-responses"
+
+    PostYrkandeResponse:
+      type: object
+      description: Svar vid skapande av ett nytt yrkande
+      properties:
+        handlaggning:
+          $ref: '#/components/schemas/Handlaggning'
+      required:
+        - handlaggning
+
+    Yrkande:
+      type: object
+      description: Yrkande
+      properties:
+        id:
+          type: string
+          description: Yrkandets unika ID
+          format: uuid
+        version:
+          type: integer
+          description: Yrkandets version
+        erbjudandeId:
+          type: string
+          description: Erbjudandets unika ID
+        yrkandedatum:
+          type: string
+          description: Datetime när yrkandet uppstod, enligt ISO 8601
+          format: date-time
+        yrkandestatus:
+          type: string
+          description: Unikt ID som identifierar status för yrkandet
+        yrkandeFrom:
+          type: string
+          format: date-time
+          description: Yrkande från och med datum
+        yrkandeTom:
+          type: string
+          format: date-time
+          description: Yrkande till och med datum
+        avsikt:
+          type: string
+          description: Unikt ID som identifierar avsikt för yrkandet
+        individYrkandeRoller:
+          type: array
+          description: Lista av personer involverade i yrkandet samt deras roll
+          items:
+            $ref: '#/components/schemas/IndividYrkandeRoll'
+        produceradeResultat:
+          type: array
+          description: Lista av producerade resultat
+          items:
+            $ref: '#/components/schemas/ProduceratResultat'
+        beslut:
+            $ref: '#/components/schemas/Beslut'
+      required:
+        - id
+        - version
+        - erbjudandeId
+        - yrkandedatum
+        - yrkandestatus
+        - yrkandeFrom
+        - yrkandeTom
+        - avsikt
+        - individYrkandeRoller
+        - produceradeResultat
+
+    ProduceratResultat:
+      type: object
+      description: Producerat resultat
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Producerade resultatets unika ID
+        version:
+          type: integer
+          description: Version av producerat resultat
+        from:
+          type: string
+          format: date-time
+          description: Startdatum/tid då resultatet gäller från, enligt ISO 8601
+        tom:
+          type: string
+          format: date-time
+          description: Slutdatum/tid då resultatet gäller till, enligt ISO 8601
+        yrkandestatus:
+          type: string
+          description: Unikt ID som identifierar status för resultat
+        avslagsanledning:
+          type: string
+          description: Orsak till avslag
+          nullable: true
+        typ:
+          type: string
+          description: Specificerar vilket typ av resultat objekt
+        data:
+          type: string
+          description: Json data av den typ som har angetts
+      required:
+        - id
+        - version
+        - from
+        - tom
+        - yrkandestatus
+        - typ
+        - data
+      example:
+        id: "b0faa3ef-2728-4448-9984-c53e8e0f4c65"
+        version: 1
+        from: "2025-01-01T00:00:00Z"
+        tom: "2025-01-02T00:00:00Z"
+        yrkandestatus: "bd6320bc-2431-4f60-862e-e9f0cead28ce"
+        avslagsanledning: "Krav ej uppfyllda"
+        typ: "ERSATTNING"
+        data: "{}"
+
+    Handlaggning:
+      type: object
+      description: Handläggning, ärendeinstans
+      properties:
+        id:
+          type: string
+          description: Handläggningens unika ID
+          format: uuid
+        version:
+          type: integer
+          description: Handläggningens version
+        yrkande:
+          $ref: '#/components/schemas/Yrkande'
+        processinstansId:
+          type: string
+          description: BPMN processinstansens unika ID
+          format: uuid
+          nullable: true
+        skapadTS:
+          type: string
+          description: DateTime när handläggning skapades, enligt ISO 8601
+          format: date-time
+        avslutadTS:
+          type: string
+          description: DateTime när handläggning avslutades, enligt ISO 8601
+          format: date-time
+          nullable: true
+        handlaggningspecifikationId:
+          type: string
+          format: uuid
+      required:
+        - id
+        - version
+        - yrkande
+        - skapadTS
+        - handlaggningspecifikationId
+
+    IndividYrkandeRoll:
+      type: object
+      description: Representerar en individ tillsammans med dess roll
+      properties:
+        individ:
+          $ref: '#/components/schemas/Idtyp'
+          description: Unikt id till en individ
+        yrkandeRollId:
+          type: string
+          description: Unikt id till en yrkande roll
+      required:
+        - individ
+        - yrkandeRollId
+
+    Beslut:
+      type: object
+      description: Beslut för yrkandet
+      nullable: true
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unikt ID för beslut
+        version:
+          type: integer
+          description: Specificerar version av beslutet
+        datum:
+          type: string
+          format: date-time
+          description: Tidpunkt för beslutet, enligt ISO 8601
+        beslutsfattare:
+          $ref: '#/components/schemas/Idtyp'
+          description: Beslutsfattarens individ-id
+        beslutsrader:
+          type: array
+          items:
+            $ref: '#/components/schemas/Beslutsrad'
+      required:
+        - id
+        - version
+        - datum
+        - beslutsfattare
+        - beslutsrader
+
+    Beslutsrad:
+      type: object
+      description: En beslutsrad i ett beslut
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unikt ID för beslutsrad
+        version:
+          type: integer
+          description: Specificerar version av beslutsrad
+        beslutsTyp:
+          type: string
+          description: Unikt ID som identfierar typ av beslut för beslutsrad
+        beslutsUtfall:
+          type: string
+          description: Unikt ID som identifierar utfall för beslutsrad
+        avslutsTyp:
+          type: string
+          description: Unikt ID som idenfierar typ av avslut för beslutsrad
+        produceradeResultatRef:
+          type: array
+          description: Producerade resultat som beslutsraden är kopplat till
+          items:
+            $ref: '#/components/schemas/ProduceratResultatRef'
+      required:
+        - id
+        - version
+        - beslutsTyp
+        - beslutsUtfall
+        - avslutsTyp
+        - produceradeResultatRef
+
+    ProduceratResultatRef:
+      type: object
+      description: Referens till ett producerat resultat
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unikt ID för producerat resultat
+        version:
+          type: integer
+          description: Specificerar version av producerade resultatet
+      required:
+        - id
+        - version
+
+    Idtyp:
+      type: object
+      properties:
+        typId:
+          type: string
+          description: Unikt ID som identifierar vilken typ av värde som anges
+        varde:
+            type: string
+            description: ID-värde som identifieras av typ
+      required:
+        - typId
+        - varde
+      example:
+        typId: "4c34906c-03d9-425f-9a1a-062ef6eb88c7"
+        varde: "19901010-1234"
