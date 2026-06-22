@@ -5,6 +5,40 @@ info:
   description: API för att hantera workflows.
 
 paths:
+  /yrkande/{handlaggningId}/process:
+    post:
+      tags: [ YrkandeController ]
+      operationId: postYrkandeProcess
+      summary: Starta en ny process för ett befintligt yrkande
+      description: Startar en ny processinstans för ett befintligt yrkande utan att avbryta en eventuellt pågående process.
+      parameters:
+        - name: handlaggningId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Handläggningens unika ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostYrkandeProcessRequest'
+      responses:
+        '200':
+          description: Process startad OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostYrkandeProcessResponse'
+        '400':
+          description: Ogiltigt anrop
+        '404':
+          description: Handläggning hittades inte
+        '500':
+          description: Internt serverfel
+
   /yrkande:
     post:
       tags: [ YrkandeController ]
@@ -31,6 +65,26 @@ paths:
 
 components:
   schemas:
+
+    PostYrkandeProcessRequest:
+      type: object
+      description: Data som krävs för att starta en ny process för ett befintligt yrkande
+      properties:
+        replyTo:
+          type: string
+          description: Kafka topic som notifiering om avslutad handläggning skickas till
+          minLength: 1
+      required:
+        - replyTo
+
+    PostYrkandeProcessResponse:
+      type: object
+      description: Svar vid start av ny process för ett befintligt yrkande
+      properties:
+        handlaggning:
+          $ref: '#/components/schemas/Handlaggning'
+      required:
+        - handlaggning
 
     PostYrkandeRequest:
       type: object
