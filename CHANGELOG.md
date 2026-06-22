@@ -1,3 +1,10 @@
+## 0.1.0 (2026-06-22)
+
+### Features
+
+-  Change process restart endpoint to /handlaggning/{handlaggningId}/process ([775c3](https://github.com/Forsakringskassan/rimfrost-service-workflow-openapi/commit/775c3b4683ba577) Ulf Slunga)  
+-  Add POST /yrkande/{handlaggningId}/process endpoint for restarting workflow ([b3f37](https://github.com/Forsakringskassan/rimfrost-service-workflow-openapi/commit/b3f3756a6abe694) Ulf Slunga)  
+
 ## 0.0.1 (2026-06-17)
 
 ### Bug Fixes
