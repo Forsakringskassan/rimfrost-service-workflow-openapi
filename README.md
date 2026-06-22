@@ -7,7 +7,7 @@ OpenAPI-specifikation för Rimfrost workflow service.
 | Metod | Sökväg | Beskrivning |
 |-------|--------|-------------|
 | `POST` | `/yrkande` | Skapa ett nytt yrkande och starta en ny handläggningsprocess |
-| `POST` | `/yrkande/{handlaggningId}/process` | Starta en ny processinstans för ett befintligt yrkande |
+| `POST` | `/handlaggning/{handlaggningId}/process` | Starta en ny processinstans för en befintlig handläggning |
 
 ## Centrala begrepp
 
