@@ -1,3 +1,9 @@
+## 0.1.2 (2026-06-24)
+
+### Bug Fixes
+
+-  make replyTo mandatory in PostHandlaggningProcessRequest ([c0a86](https://github.com/Forsakringskassan/rimfrost-service-workflow-openapi/commit/c0a86dda81fff9b) Ulf Slunga)  
+
 ## 0.1.1 (2026-06-22)
 
 ### Bug Fixes
