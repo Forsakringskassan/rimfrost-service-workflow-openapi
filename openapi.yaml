@@ -72,8 +72,10 @@ components:
       properties:
         replyTo:
           type: string
-          description: Optional re-config av kafka topic som notifiering om avslutad handläggning skickas till
+          description: Kafka topic som notifiering om avslutad handläggning skickas till
           minLength: 1
+      required:
+        - replyTo
 
     PostHandlaggningProcessResponse:
       type: object
