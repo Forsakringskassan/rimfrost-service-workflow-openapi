@@ -1,3 +1,10 @@
+## 0.1.3 (2026-11-06)
+
+### Bug Fixes
+
+-  update workflows ([cc0e8](https://github.com/Forsakringskassan/rimfrost-service-workflow-openapi/commit/cc0e8c1cb72852a) Nils Elveros)  
+-  update openapi to align with the updated object model ([8311b](https://github.com/Forsakringskassan/rimfrost-service-workflow-openapi/commit/8311bdb643c4d40) Nils Elveros)  
+
 ## 0.1.2 (2026-06-24)
 
 ### Bug Fixes
